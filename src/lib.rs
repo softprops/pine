@@ -4,11 +4,15 @@ use std::process::Child;
 use std::sync::mpsc::{channel, Sender, Receiver};
 use std::thread;
 
+/// represents a single line of output from a child process
 pub enum Line {
+  /// a line of stdout output
   StdOut(String),
+  /// a line of stderr output
   StdErr(String)
 }
 
+/// represents a source of child process line output
 pub struct Lines {
   rx: Receiver<Option<Line>>,
 }
@@ -18,11 +22,12 @@ impl Iterator for Lines {
   fn next(&mut self) -> Option<Line> {
     match self.rx.try_recv() {
       Ok(line) => line,
-      _  => None,
+            _  => None,
     }
   }
 }
 
+/// creates a new Lines instance
 pub fn lines(child: &mut Child) -> Lines {
   let (tx, rx) = channel();
   fn read<R, F>(
