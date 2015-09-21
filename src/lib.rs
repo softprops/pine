@@ -9,63 +9,53 @@ pub enum Line {
   StdErr(String)
 }
 
-pub struct Process<'a> {
-  child: &'a mut Child,
-  tx: Sender<Option<Line>>,
+pub struct Lines {
   rx: Receiver<Option<Line>>,
 }
 
-pub struct Lines<'a> {
-  process: &'a mut Process<'a>
-}
-
-impl <'a> Iterator for Lines<'a> {
+impl Iterator for Lines {
   type Item = Line;
   fn next(&mut self) -> Option<Line> {
-    match self.process.rx.try_recv() {
+    match self.rx.try_recv() {
       Ok(line) => line,
-          _  => None
+      _  => None,
     }
   }
 }
 
-impl<'a> Process<'a> {
-  pub fn new(child: &'a mut Child) -> Process<'a> {
-    let (tx, rx) = channel();
-    Process {
-      child: child,
-      tx: tx,
-      rx: rx,
-    }
-  }
-
-  pub fn read(&mut self) {
-    fn collect<T: Read + Send + 'static>(
-      readable: Option<T>, tx: Sender<Option<Line>>
-    ) {
-      if let Some(r) = readable {
-        thread::spawn(move || {
-          let reader = BufReader::new(r);
-          for line in reader.lines() {
-            let _ = match line {
-              Ok(l) => tx.send(Some(Line::StdOut(l))),
-              _ => tx.send(None)
-            };
+pub fn lines(child: &mut Child) -> Lines {
+  let (tx, rx) = channel();
+  fn read<R, F>(
+    readable: Option<R>,
+    tx: Sender<Option<Line>>,
+    wrap: F
+  ) where
+    R: Send + 'static + Read,
+    F: Send + 'static + Fn(String) -> Line {
+    if let Some(r) = readable {
+      thread::spawn(move || {
+        let mut buf = BufReader::with_capacity(64, r);
+        loop {
+          let mut line = String::new();
+          match buf.read_line(&mut line) {
+            Ok(0) | Err(_)  => {
+              print!(""); // not sure why but this is needed for a final *flush*
+              let _ = tx.send(None);
+              break
+            },
+            Ok(_)  => {
+              let _ = tx.send(Some(wrap(line)));
+            }
           }
-        });
-      } else {
-        let _ = tx.send(None);
-      }
-    };
-    collect(self.child.stdout.take(), self.tx.clone());
-    collect(self.child.stderr.take(), self.tx.clone());
-  }
-
-  pub fn lines(&'a mut self) -> Lines<'a> {
-    Lines {
-      process: self
+        }
+      });
+    } else {
+      let _ = tx.send(None);
     }
-  }
+  };
+  read(child.stdout.take(), tx.clone(), |l| Line::StdOut(l));
+  read(child.stderr.take(), tx.clone(), |l| Line::StdErr(l));
+  Lines { rx: rx }
 }
 
 #[test]
