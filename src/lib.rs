@@ -17,10 +17,21 @@ pub struct Lines {
   rx: Receiver<Option<Line>>,
 }
 
-impl Iterator for Lines {
+/// represents an iterable of Line instances
+pub struct Iter<'a> {
+  lines: &'a Lines
+}
+
+impl Lines {
+  pub fn iter(&self) -> Iter {
+    Iter { lines: self }
+  }
+}
+
+impl<'a> Iterator for Iter<'a> {
   type Item = Line;
   fn next(&mut self) -> Option<Line> {
-    match self.rx.try_recv() {
+    match self.lines.rx.try_recv() {
       Ok(line) => line,
             _  => None,
     }

@@ -16,7 +16,7 @@ fn main() {
       Ok(mut child) => {
         let lines = pines::lines(&mut child);
         child.wait().unwrap();
-        for line in lines {
+        for line in lines.iter() {
           match line {
             pines::Line::StdOut(line) => println!("stdout line -> {}", line),
             pines::Line::StdErr(line) => println!("stderr line -> {}", line)
