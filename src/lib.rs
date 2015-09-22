@@ -5,6 +5,7 @@ use std::sync::mpsc::{channel, Sender, Receiver};
 use std::thread;
 
 /// represents a single line of output from a child process
+#[derive(Debug)]
 pub enum Line {
   /// a line of stdout output
   StdOut(String),
@@ -31,7 +32,7 @@ impl Lines {
 impl<'a> Iterator for Iter<'a> {
   type Item = Line;
   fn next(&mut self) -> Option<Line> {
-    match self.lines.rx.try_recv() {
+    match self.lines.rx.recv() {
       Ok(line) => line,
             _  => None,
     }
@@ -39,6 +40,19 @@ impl<'a> Iterator for Iter<'a> {
 }
 
 /// creates a new Lines instance
+///
+/// ```rust
+///  match Command::new("...").spawn() {
+///    Ok(mut child) => {
+///       let lines = pines::lines(&mut child);
+///       child.wait().unwrap();
+///       for l in lines.iter() {
+///          println!("{}", l)
+///       }
+///    }
+///    _ => println!("failed to launch process")
+///  }
+/// ```
 pub fn lines(child: &mut Child) -> Lines {
   let (tx, rx) = channel();
   fn read<R, F>(
@@ -55,7 +69,7 @@ pub fn lines(child: &mut Child) -> Lines {
           let mut line = String::new();
           match buf.read_line(&mut line) {
             Ok(0) | Err(_)  => {
-              print!(""); // not sure why but this is needed for a final *flush*
+              print!("\n"); // not sure why but this is needed for a final *flush*
               let _ = tx.send(None);
               break
             },
