@@ -6,7 +6,7 @@
 
 ## apidocs
 
-Fine them [here](http://softprops.github.io/pine)
+Find them [here](http://softprops.github.io/pine)
 
 ## usage
 
