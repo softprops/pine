@@ -22,8 +22,7 @@ to these lines of output, is making sure your child process output is "piped" to
 extern crate pine;
 use std::process::{Command, Stdio};
 
-fn main() {
-  let mut process = Command::new("/bin/sh")
+let mut process = Command::new("/bin/sh")
     .arg("-c")
     .arg("curl https://www.howsmyssl.com/a/check")
     .stdout(Stdio::piped())
@@ -35,10 +34,9 @@ With the subprocess piped to your program you can then iterate over lines of out
 they are available.
 
 ```rust
-  let lines = pine::lines(&mut process);
-  for line in lines.iter() {
+let lines = pine::lines(&mut process);
+for line in lines.iter() {
     println!("{:?}", line);
-  }
 }
 ```
 
