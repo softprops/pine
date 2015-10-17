@@ -2,6 +2,11 @@
 name = "pine"
 version = "0.1.0"
 authors = ["softprops <d.tangren@gmail.com>"]
+description = "Iterator over process line output"
+homepage = "https://github.com/softprops/pine"
+repository = "https://github.com/softprops/pine"
+keywords = ["unix", "io", "process"]
+license = "MIT"
 
 [[bin]]
 name = "pine"
