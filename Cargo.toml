@@ -1,8 +1,8 @@
 [package]
-name = "pines"
+name = "pine"
 version = "0.1.0"
 authors = ["softprops <d.tangren@gmail.com>"]
 
 [[bin]]
-name = "pines"
+name = "pine"
 doc = false

@@ -42,16 +42,18 @@ impl<'a> Iterator for Iter<'a> {
 /// creates a new Lines instance
 ///
 /// ```rust
-///  match Command::new("...").spawn() {
-///    Ok(mut child) => {
-///       let lines = pines::lines(&mut child);
-///       child.wait().unwrap();
-///       for l in lines.iter() {
-///          println!("{}", l)
-///       }
-///    }
-///    _ => println!("failed to launch process")
-///  }
+///  match Command::new("...").
+///      .stdout(Stdio::piped())
+///      .stderr(Stdio::piped()).spawn() {
+///          Ok(mut child) => {
+///              let lines = pines::lines(&mut child);
+///              child.wait().unwrap();
+///              for l in lines.iter() {
+///                  println!("{}", l)
+///              }
+///          },
+///         _ => println!("failed to launch process")
+///     }
 /// ```
 pub fn lines(child: &mut Child) -> Lines {
   let (tx, rx) = channel();
@@ -64,18 +66,14 @@ pub fn lines(child: &mut Child) -> Lines {
     F: Send + 'static + Fn(String) -> Line {
     if let Some(r) = readable {
       thread::spawn(move || {
-        let mut buf = BufReader::with_capacity(64, r);
+        let mut buf = BufReader::new(r);
         loop {
           let mut line = String::new();
-          match buf.read_line(&mut line) {
-            Ok(0) | Err(_)  => {
-              print!("\n"); // not sure why but this is needed for a final *flush*
-              let _ = tx.send(None);
-              break
-            },
-            Ok(_)  => {
-              let _ = tx.send(Some(wrap(line)));
-            }
+            match buf.read_line(&mut line) {
+                Ok(0) | Err(_)  => break,
+                Ok(_)  => {
+                    let _ = tx.send(Some(wrap(line)));
+                }
           }
         }
       });
