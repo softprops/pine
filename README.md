@@ -4,5 +4,8 @@
 
 > rust process line output
 
+## docs
+
+Fine them [here](http://softprops.github.io/pine)
 
 Doug Tangren (softprops) 2015
