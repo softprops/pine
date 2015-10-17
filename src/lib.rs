@@ -42,14 +42,15 @@ impl<'a> Iterator for Iter<'a> {
 /// creates a new Lines instance
 ///
 /// ```rust
-///  match Command::new("...").
+/// use std::process::{Command, Stdio};
+///  match Command::new("...")
 ///      .stdout(Stdio::piped())
 ///      .stderr(Stdio::piped()).spawn() {
 ///          Ok(mut child) => {
-///              let lines = pines::lines(&mut child);
+///              let lines = pine::lines(&mut child);
 ///              child.wait().unwrap();
 ///              for l in lines.iter() {
-///                  println!("{}", l)
+///                  println!("{:?}", l)
 ///              }
 ///          },
 ///         _ => println!("failed to launch process")
