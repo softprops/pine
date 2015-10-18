@@ -11,11 +11,11 @@ Find them [here](http://softprops.github.io/pine)
 ## usage
 
 Rust's interface for working with [processes](https://doc.rust-lang.org/std/process/) is pretty great, but sometimes
-you may wish to stream process output as it becomes available, rather waiting for the process to exit before you can get
-and handle on the total process out [output](https://doc.rust-lang.org/std/process/struct.Output.html).
+you may wish to stream process output as it becomes available rather waiting for the process to exit before you can get
+a handle on the total process [output](https://doc.rust-lang.org/std/process/struct.Output.html).
 
 For these usecases, `pine` provides in iterator interface over lines of process output,
-represented as enum of `pine.Line.StdOut` or `pine.Line.StdErr`. This is well suited for unix programs with emit
+represented as enum of `pine::Line::StdOut` or `pine::Line::StdErr`. This is well suited for unix programs with emit
 line-oriented output. A prerequite for your program to gain access
 to these lines of output, is making sure your child process output is "piped" to your program. Rust's Command interface
 makes this simple.
