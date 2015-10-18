@@ -4,6 +4,15 @@
 
 > line oriented process output
 
+## install
+
+Add the following to your Cargo.toml file
+
+```toml
+[dependencies]
+pine = "0.1"
+```
+
 ## apidocs
 
 Find them [here](http://softprops.github.io/pine)
