@@ -1,6 +1,6 @@
 # pine
 
-[![Build Status](https://travis-ci.org/softprops/pine.svg?branch=master)](https://travis-ci.org/softprops/pine)
+[![Build Status](https://travis-ci.org/softprops/pine.svg?branch=master)](https://travis-ci.org/softprops/pine) [![crates.io](http://meritbadge.herokuapp.com/pine)](https://crates.io/crates/pine)
 
 > line oriented process output
 
